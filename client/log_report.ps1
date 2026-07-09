@@ -29,5 +29,9 @@ $body = @{
     mood     = $Mood
 } | ConvertTo-Json
 
-$resp = Invoke-WebRequest -Uri $GasEndpoint -Method POST -Body $body -ContentType "application/json" -UseBasicParsing
+# PowerShellの既定の文字列送信は日本語などマルチバイト文字が「?」に文字化けするため、
+# JSON文字列をUTF-8のバイト列に明示的に変換してから送信する。
+$utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($body)
+
+$resp = Invoke-WebRequest -Uri $GasEndpoint -Method POST -Body $utf8Bytes -ContentType "application/json; charset=utf-8" -UseBasicParsing
 Write-Output $resp.Content
